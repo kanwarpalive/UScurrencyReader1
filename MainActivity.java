@@ -79,10 +79,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 }
             }
         });
-       // mJavaCameraView.setOnTouchListener(this);
+
     }
-
-
 
     @Override  public void onResume()  {
         super.onResume();
@@ -95,19 +93,21 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         }
     }
 
-
     @Override
-    public void onPause()   {
-        super.onPause();
-        if (mJavaCameraView != null)
-            mJavaCameraView.disableView();
-    }
+    public void onPause()
+        {
+            super.onPause();
+            if (mJavaCameraView != null)
+                mJavaCameraView.disableView();
+        }
 
 
-    public void onDestroy() {
-        super.onDestroy();
-        if (mJavaCameraView != null)
-            mJavaCameraView.disableView();   }
+    public void onDestroy()
+        {
+            super.onDestroy();
+            if (mJavaCameraView != null)
+                mJavaCameraView.disableView();
+        }
 
 
 
@@ -118,45 +118,35 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     public void onCameraViewStarted(int width, int height) { }
 
     @Override
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        imageMAt = inputFrame.rgba();
-        gray =inputFrame.gray();
-        return imageMAt;
+    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame)
+        {
+            imageMAt = inputFrame.rgba();
+            gray =inputFrame.gray();
+            return imageMAt;
 
-    }
+        }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
+    public boolean onTouch(View view, MotionEvent motionEvent)
+    {
         System.out.println("getting inside");
         Mat image01 = gray;
         String toSpeak = "No matches found";
-
 
         Mat grayImage01 = new Mat(image01.rows(), image01.cols(), CvType.CV_8UC1);
         Imgproc.pyrDown(gray, image01);
         Core.normalize(image01, grayImage01, 0, 255, Core.NORM_MINMAX);
         MatOfKeyPoint keyPoint01 = new MatOfKeyPoint();
 
-        //KPS
-        //FeatureDetector siftDetector = FeatureDetector.create(FeatureDetector.SIFT);
-        //siftDetector.detect(grayImage01, keyPoint01);
         FeatureDetector orbDetector = FeatureDetector.create(FeatureDetector.ORB);
-        // orbDetector.detect(grayImage01, keyPoint01);
-        // COMMENTING ABOVE LINE TO CHANGE grayImage01 to image01
         orbDetector.detect(image01, keyPoint01);
 
         KeyPoint[] keypoints = keyPoint01.toArray();
         System.out.println(keypoints);
         MatOfKeyPoint objectDescriptors = new MatOfKeyPoint();
 
-        //KPS
-        // DescriptorExtractor siftExtractor = DescriptorExtractor.create(DescriptorExtractor.SIFT);
-        //siftExtractor.compute(grayImage01, keyPoint01, objectDescriptors);
         DescriptorExtractor orbExtractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
-        //orbExtractor.compute(grayImage01, keyPoint01, objectDescriptors);
-        // COMMENTING ABOVE LINE TO CHANGE grayImage01 to image01
         orbExtractor.compute(image01, keyPoint01, objectDescriptors);
-
 
         Mat outputImage = new Mat();
         Scalar newKeypointColor = new Scalar(255, 0, 0);
@@ -166,24 +156,19 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             if(flag==true){
                 return  false;
             }
-            // DATASET:
-            String filename = "us"+note; // filename created matching our drawable resource.
-            int id = getResources().getIdentifier(filename, "drawable", getPackageName()); // grabbing handle by id
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), id); // bitmap of same resource
+            String filename = "us"+note;
+            int id = getResources().getIdentifier(filename, "drawable", getPackageName());
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), id);
 
             System.out.println(bitmap.getHeight() + "  " + bitmap.getWidth());
-
             Mat m = new Mat();
-            Utils.bitmapToMat(bitmap, m); // m is the Mat for Bitmap, (RESOURCE)
+            Utils.bitmapToMat(bitmap, m); // m is the Mat(RESOURCE).
 
             MatOfKeyPoint sceneKeyPoints = new MatOfKeyPoint();
             MatOfKeyPoint sceneDescriptors = new MatOfKeyPoint();
 
-            // siftDetector.detect(m, sceneKeyPoints);
-            //siftExtractor.compute(m, sceneKeyPoints, sceneDescriptors);
             orbDetector.detect(m, sceneKeyPoints);
             orbExtractor.compute(m, sceneKeyPoints, sceneDescriptors);
-
 
             List<MatOfDMatch> matches = new LinkedList<MatOfDMatch>();
             DescriptorMatcher descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
